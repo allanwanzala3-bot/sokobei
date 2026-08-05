@@ -1,26 +1,4 @@
-<script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useTamikaStore } from '@/stores/tamikaStore'
-import StoreComparisonCard from '@/components/StoreComparisonCard.vue'
 
-const store = useTamikaStore()
-const router = useRouter()
-const selectedStore = computed({
-  get: () => store.selectedStore,
-  set: (value) => {
-    store.selectedStore = value
-  },
-})
-
-function goToDelivery() {
-  if (!store.isAuthenticated) {
-    router.push('/auth')
-    return
-  }
-  router.push('/delivery')
-}
-</script>
 
 <template>
   <v-container class="py-8">
@@ -63,3 +41,27 @@ function goToDelivery() {
     </v-row>
   </v-container>
 </template>
+
+<script setup>
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useTamikaStore } from '@/stores/tamikaStore'
+import StoreComparison from '@/components/StoreComparison.vue'
+
+const store = useTamikaStore()
+const router = useRouter()
+const selectedStore = computed({
+  get: () => store.selectedStore,
+  set: (value) => {
+    store.selectedStore = value
+  },
+})
+
+function goToDelivery() {
+  if (!store.isAuthenticated) {
+    router.push('/auth')
+    return
+  }
+  router.push('/delivery')
+}
+</script>

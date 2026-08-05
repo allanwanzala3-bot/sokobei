@@ -1,19 +1,4 @@
-<script setup>
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useTamikaStore } from '@/stores/tamikaStore'
 
-const store = useTamikaStore()
-const router = useRouter()
-const menu = ref(false)
-const initials = computed(() => store.user?.name?.charAt(0)?.toUpperCase() || 'U')
-
-function logout() {
-  store.logout()
-  menu.value = false
-  router.push('/auth')
-}
-</script>
 
 <template>
   <v-app-bar color="primary" flat>
@@ -53,3 +38,20 @@ function logout() {
     <v-btn v-else to="/auth" variant="text" class="ml-2">Login</v-btn>
   </v-app-bar>
 </template>
+
+<script setup>
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useTamikaStore } from '@/stores/tamikaStore'
+
+const store = useTamikaStore()
+const router = useRouter()
+const menu = ref(false)
+const initials = computed(() => store.user?.name?.charAt(0)?.toUpperCase() || 'U')
+
+function logout() {
+  store.logout()
+  menu.value = false
+  router.push('/auth')
+}
+</script>

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { compareStoreTotals, findBestStore } from '@/utils/pricing'
+import { compareStoreTotals, findBestStore } from '@/stores/pricing'
 
 export const useTamikaStore = defineStore('tamika', () => {
   const user = ref(null)

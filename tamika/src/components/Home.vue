@@ -1,23 +1,4 @@
-<script setup>
-import { computed } from 'vue'
-import { useTamikaStore } from '@/stores/tamikaStore'
-import StoreCard from '@/components/StoreCard.vue'
-import OfferCard from '@/components/OfferCard.vue'
-import StoreComparisonCard from '@/components/StoreComparisonCard.vue'
 
-const store = useTamikaStore()
-const recommendedStore = computed(() => store.bestStore)
-const catalog = [
-  { id: 1, name: 'Milk', price: 3.5, category: 'Groceries' },
-  { id: 2, name: 'Bread', price: 2.2, category: 'Bakery' },
-  { id: 3, name: 'Rice', price: 5.0, category: 'Pantry' },
-  { id: 4, name: 'Soap', price: 2.8, category: 'Household' },
-]
-
-function addProduct(item) {
-  store.addToCart(item)
-}
-</script>
 
 <template>
   <v-container fluid class="py-6">
@@ -73,3 +54,24 @@ function addProduct(item) {
     </v-card>
   </v-container>
 </template>
+
+<script setup>
+import { computed } from 'vue'
+import { useTamikaStore } from '@/stores/tamikaStore'
+import Store from '@/components/Store.vue'
+import OfferCard from '@/components/OfferCard.vue'
+import StoreComparison from '@/components/StoreComparison.vue'
+
+const store = useTamikaStore()
+const recommendedStore = computed(() => store.bestStore)
+const catalog = [
+  { id: 1, name: 'Milk', price: 3.5, category: 'Groceries' },
+  { id: 2, name: 'Bread', price: 2.2, category: 'Bakery' },
+  { id: 3, name: 'Rice', price: 5.0, category: 'Pantry' },
+  { id: 4, name: 'Soap', price: 2.8, category: 'Household' },
+]
+
+function addProduct(item) {
+  store.addToCart(item)
+}
+</script>

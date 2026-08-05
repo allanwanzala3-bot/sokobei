@@ -1,27 +1,4 @@
-<script setup>
-import { reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { useTamikaStore } from '@/stores/tamikaStore'
 
-const store = useTamikaStore()
-const router = useRouter()
-const form = reactive({
-  name: '',
-  password: '',
-  role: 'Shopper',
-  mode: 'login',
-})
-
-function submit() {
-  if (form.mode === 'register') {
-    const ok = store.register(form.name, form.password, form.role)
-    if (ok) router.push('/cart')
-  } else {
-    const ok = store.login(form.name, form.password, form.role)
-    if (ok) router.push('/cart')
-  }
-}
-</script>
 
 <template>
   <v-container class="py-8">
@@ -48,3 +25,28 @@ function submit() {
     </v-row>
   </v-container>
 </template>
+
+<script setup>
+import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import { useTamikaStore } from '@/stores/tamikaStore'
+
+const store = useTamikaStore()
+const router = useRouter()
+const form = reactive({
+  name: '',
+  password: '',
+  role: 'Shopper',
+  mode: 'login',
+})
+
+function submit() {
+  if (form.mode === 'register') {
+    const ok = store.register(form.name, form.password, form.role)
+    if (ok) router.push('/cart')
+  } else {
+    const ok = store.login(form.name, form.password, form.role)
+    if (ok) router.push('/cart')
+  }
+}
+</script>

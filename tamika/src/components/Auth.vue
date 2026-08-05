@@ -1,19 +1,4 @@
-<script setup>
-import { reactive } from 'vue'
-import { useTamikaStore } from '@/stores/tamikaStore'
 
-const store = useTamikaStore()
-const form = reactive({ name: '', password: '', role: 'Shopper' })
-const mode = reactive({ value: 'login' })
-
-function handleSubmit() {
-  if (mode.value === 'login') {
-    store.login(form.name, form.password, form.role)
-  } else {
-    store.register(form.name, form.password, form.role)
-  }
-}
-</script>
 
 <template>
   <v-card class="pa-4" rounded="lg" elevation="4">
@@ -39,3 +24,20 @@ function handleSubmit() {
     </v-card-text>
   </v-card>
 </template>
+
+<script setup>
+import { reactive } from 'vue'
+import { useTamikaStore } from '@/stores/tamikaStore'
+
+const store = useTamikaStore()
+const form = reactive({ name: '', password: '', role: 'Shopper' })
+const mode = reactive({ value: 'login' })
+
+function handleSubmit() {
+  if (mode.value === 'login') {
+    store.login(form.name, form.password, form.role)
+  } else {
+    store.register(form.name, form.password, form.role)
+  }
+}
+</script>
