@@ -73,30 +73,27 @@ function submit() {
     isProcessing.value = false
     showSuccess.value = true
 
-    if (store.selectedRole === 'Store Manager') {
-      store.orders.push({
-        id: Date.now(),
-        store: store.selectedStore,
-        total:
-          Number(store.subtotal) +
-          (store.stores.find((s) => s.name === store.selectedStore)?.deliveryFee || 0) +
-          store.serviceFee,
-        address: form.address,
-        payment: form.payment,
-        slot: form.slot,
-        notes: form.notes,
-        customer: store.user?.name || 'Guest',
-        role: store.selectedRole,
-        status: 'Pending',
-      })
-    }
+  
+    store.orders.push({
+  id: Date.now(),
+  store: store.selectedStore,
+  total: store.storeTotals.find(s => s.name === store.selectedStore)?.total,
+  address: form.address,
+  payment: form.payment,
+  slot: form.slot,
+  notes: form.notes,
+  customer: store.user?.name || 'Guest',   
+  role: store.selectedRole || 'Shopper',  
+  status: 'Pending',
+  items: [...store.cart]
+})
   }, 1200)
 }
-
 function closeSuccess() {
   showSuccess.value = false
-  router.push(store.selectedRole === 'Store Manager' ? '/orders' : '/cart')
+  router.push(store.selectedRole === 'Store Manager' ? '/orders' : '/my-orders')
 }
+
 </script>
 
 

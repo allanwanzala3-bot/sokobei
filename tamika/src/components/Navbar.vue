@@ -1,15 +1,22 @@
-
-
 <template>
   <v-app-bar color="primary" flat>
     <v-app-bar-title>Tamika</v-app-bar-title>
     <v-spacer />
-    <v-btn to="/" variant="text">Home</v-btn>
-    <v-btn to="/cart" variant="text">Cart</v-btn>
-    <v-btn to="/delivery" variant="text">Delivery</v-btn>
-    <v-btn to="/orders" variant="text">Orders</v-btn>
-    <v-btn to="/users" variant="text">Users</v-btn>
 
+    <!-- Shopper navigation -->
+    <template v-if="store.selectedRole !== 'Store Manager'">
+      <v-btn to="/" variant="text">Home</v-btn>
+      <v-btn to="/cart" variant="text">Cart</v-btn>
+      <v-btn to="/my-orders" variant="text">My Orders</v-btn>
+    </template>
+
+    <!-- Manager navigation -->
+    <template v-else>
+      <v-btn to="/orders" variant="text">Orders</v-btn>
+      <v-btn to="/manager" variant="text">Manager Dashboard</v-btn>
+    </template>
+
+    <!-- Authenticated user menu -->
     <v-menu v-if="store.isAuthenticated" v-model="menu" offset-y>
       <template #activator="{ props }">
         <v-btn v-bind="props" icon class="ml-2">
@@ -35,7 +42,8 @@
       </v-list>
     </v-menu>
 
-    <v-btn v-else to="/auth" variant="text" class="ml-2">Login</v-btn>
+    <!-- Guest login -->
+    <v-btn v-else to="/login" variant="text" class="ml-2">Login</v-btn>
   </v-app-bar>
 </template>
 
@@ -52,6 +60,6 @@ const initials = computed(() => store.user?.name?.charAt(0)?.toUpperCase() || 'U
 function logout() {
   store.logout()
   menu.value = false
-  router.push('/auth')
+  router.push('/login') 
 }
 </script>
