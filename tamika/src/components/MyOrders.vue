@@ -21,7 +21,7 @@
               class="mb-4"
             >
               <v-list-item-title>
-                {{ order.store }} — Ksh {{ order.total.toLocaleString() }}
+                {{ order.store }} — Ksh {{ order.total?.toLocaleString() || 0 }}
               </v-list-item-title>
               <v-list-item-subtitle>
                 {{ order.address }} • {{ order.slot }} • {{ order.status }}
@@ -39,17 +39,29 @@
 
                   <template #append>
                     <v-btn
-                      v-if="order.status === 'Pending' && store.selectedRole !== 'Store Manager'"
+                      v-if="order.status === 'Pending' || order.status === 'Preparing'"
                       color="error"
                       variant="tonal"
                       size="x-small"
-                      @click="cancelItem(order.id, item.id)"
+                      @click="confirmCancelItem(order.id, item.id)"
                     >
                       Cancel
                     </v-btn>
                   </template>
                 </v-list-item>
               </v-list>
+
+              <!-- Cancel entire order -->
+              <v-btn
+                v-if="order.status === 'Pending' || order.status === 'Preparing'"
+                color="error"
+                variant="tonal"
+                size="small"
+                class="mt-2"
+                @click="confirmCancelOrder(order.id)"
+              >
+                Cancel Entire Order
+              </v-btn>
 
               <!-- Manager actions -->
               <template #append>
@@ -76,24 +88,55 @@
             </v-list-item>
           </v-list>
         </v-card>
+
+        <!-- Confirmation Dialog -->
+        <v-dialog v-model="showConfirm" max-width="400">
+          <v-card class="pa-6 text-center">
+            <v-icon color="error" size="48">mdi-alert-circle-outline</v-icon>
+            <h3 class="text-h6 font-weight-bold mt-3">Cancel Order?</h3>
+            <p class="text-body-2 mt-2">Are you sure you want to cancel this order?</p>
+            <v-row justify="center" class="mt-4">
+              <v-btn variant="outlined" color="grey-darken-1" @click="showConfirm = false">No</v-btn>
+              <v-btn color="error" class="ml-2" @click="performCancel">Yes, Cancel</v-btn>
+            </v-row>
+          </v-card>
+        </v-dialog>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useTamikaStore } from '@/stores/tamikaStore'
 const store = useTamikaStore()
 
-function cancelItem(orderId, itemId) {
+const showConfirm = ref(false)
+let cancelTarget = { orderId: null, itemId: null }
+
+function confirmCancelItem(orderId, itemId) {
+  cancelTarget = { orderId, itemId }
+  showConfirm.value = true
+}
+
+function confirmCancelOrder(orderId) {
+  cancelTarget = { orderId, itemId: null }
+  showConfirm.value = true
+}
+
+function performCancel() {
+  const { orderId, itemId } = cancelTarget
   const order = store.orders.find(o => o.id === orderId)
   if (!order) return
-  order.items = order.items.filter(i => i.id !== itemId)
 
-  // Optional: if all items are cancelled, mark order as Cancelled
-  if (order.items.length === 0) {
+  if (itemId) {
+    order.items = order.items.filter(i => i.id !== itemId)
+    if (order.items.length === 0) order.status = 'Cancelled'
+  } else {
     order.status = 'Cancelled'
   }
+
+  showConfirm.value = false
 }
 
 function markDelivered(id) {

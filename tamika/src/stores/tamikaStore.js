@@ -7,6 +7,7 @@ export const useTamikaStore = defineStore('tamika', () => {
   const user = ref(null)
   const selectedRole = ref('Shopper')
   const selectedStore = ref('Green Cart')
+  const selectedProduct = ref(null)
 
   // 🔑 Core data
   const cart = ref([])
@@ -24,12 +25,25 @@ export const useTamikaStore = defineStore('tamika', () => {
     { name: 'City Market', discount: 150, deliveryFee: 200 },
   ])
 
-  // 🔑 Products: each store posts fixed price
-  const products = ref([
-    { id: 1, name: 'Sunrice Basmati Rice 5Kg', price: 1199, store: 'Green Cart' },
-    { id: 2, name: 'Dola Cooking Oil 5Ltr', price: 1300, store: 'Quick Mart' },
-    { id: 3, name: 'Prestige Margarine 1Kg', price: 1400, store: 'City Market' },
-  ])
+  // 🔑 Products
+ const products = ref([
+  { id: 1, name: 'Sunrice Basmati Rice 5Kg', price: 1199, store: 'Green Cart' },
+  { id: 2, name: 'Sunrice Basmati Rice 5Kg', price: 1300, store: 'Quick Mart' },
+  { id: 3, name: 'Sunrice Basmati Rice 5Kg', price: 1400, store: 'City Market' },
+
+  { id: 4, name: 'Dola Cooking Oil 5Ltr', price: 1250, store: 'Green Cart' },
+  { id: 5, name: 'Dola Cooking Oil 5Ltr', price: 1300, store: 'Quick Mart' },
+  { id: 6, name: 'Dola Cooking Oil 5Ltr', price: 1280, store: 'City Market' },
+
+  { id: 7, name: 'Prestige Margarine 1Kg', price: 1350, store: 'Green Cart' },
+  { id: 8, name: 'Prestige Margarine 1Kg', price: 1400, store: 'Quick Mart' },
+  { id: 9, name: 'Prestige Margarine 1Kg', price: 1380, store: 'City Market' },
+
+   { id: 10, name: 'Nescafe Classic Jar 100g', price: 150, store: 'Green Cart' },
+  { id: 11, name: 'Nescafe Classic Jar 100g', price: 155, store: 'Quick Mart' },
+  { id: 12, name: 'Nescafe Classic Jar 100g', price: 140, store: 'City Market' },
+])
+
 
   // Shopper view → aggregated ranges
   const shopperProducts = computed(() => {
@@ -66,13 +80,68 @@ export const useTamikaStore = defineStore('tamika', () => {
 
   const serviceFee = computed(() => 10)
 
-  const storeTotals = computed(() =>
-    compareStoreTotals(cart.value, stores.value)
-  )
+ const storeTotals = computed(() => {
+  return stores.value.map(s => {
+    const total = cart.value.reduce((sum, item) => {
+      const match = products.value.find(
+        p => p.name === item.name && p.store === s.name
+      )
+      return sum + (match ? match.price : 0)
+    }, 0)
 
-  const bestStore = computed(() => findBestStore(storeTotals.value))
+    return {
+      name: s.name,
+      total,
+      deliveryFee: s.deliveryFee,
+      discount: s.discount,
+      finalTotal: total + s.deliveryFee - s.discount,
+    }
+  })
+})
+
+
+const bestStore = computed(() => {
+  if (!storeTotals.value.length) return null
+  return storeTotals.value.reduce((min, s) => (s.finalTotal < min.finalTotal ? s : min), storeTotals.value[0])
+})
+
+
+ 
 
   const isAuthenticated = computed(() => Boolean(user.value))
+
+  // 🔑 Orders
+  function addOrder(order) {
+    orders.value.push({
+      ...order,
+      id: Date.now(),
+      customer: user.value?.name || 'Guest',
+      store: selectedStore.value,
+      status: 'Preparing',
+    })
+  }
+
+  const managerOrders = computed(() => {
+    if (selectedRole.value !== 'Store Manager') return []
+    return orders.value.filter(o => o.store === selectedStore.value)
+  })
+
+  const visibleOrders = computed(() => {
+    if (selectedRole.value === 'Store Manager') {
+      return orders.value.filter(o => o.store === selectedStore.value)
+    }
+    return orders.value.filter(o => o.customer === (user.value?.name || 'Guest'))
+  })
+
+  const bestStoreForProduct = computed(() => {
+  if (!selectedProduct.value) return null
+  const prices = stores.value.map(s => ({
+    name: s.name,
+    price: products.value.find(p => p.name === selectedProduct.value.name && p.store === s.name)?.price || Infinity
+  }))
+  return prices.reduce((min, s) => (s.price < min.price ? s : min), prices[0])
+})
+
 
   // 🔑 Auth functions
   function login(name, password, store) {
@@ -115,19 +184,6 @@ export const useTamikaStore = defineStore('tamika', () => {
     })
   }
 
-  // 🔑 Orders
-  const managerOrders = computed(() => {
-    if (selectedRole.value !== 'Store Manager') return []
-    return orders.value.filter(o => o.store === selectedStore.value)
-  })
-
-  const visibleOrders = computed(() => {
-    if (selectedRole.value === 'Store Manager') {
-      return orders.value.filter(o => o.store === selectedStore.value)
-    }
-    return orders.value.filter(o => o.customer === (user.value?.name || 'Guest'))
-  })
-
   // 🔑 Cart functions
   function addToCart(item) {
     cart.value.push({ ...item, id: Date.now() })
@@ -136,6 +192,15 @@ export const useTamikaStore = defineStore('tamika', () => {
   function removeFromCart(itemId) {
     cart.value = cart.value.filter((item) => item.id !== itemId)
   }
+
+  function getPrice(productName, storeName) {
+  const match = products.value.find(
+    p => p.name.trim().toLowerCase() === productName.trim().toLowerCase() &&
+         p.store === storeName
+  )
+  return match ? `KSh ${match.price.toLocaleString('en-KE')}` : 'Not available'
+}
+
 
   function submitDelivery(payload) {
     deliveryRequest.value = { ...deliveryRequest.value, ...payload }
@@ -146,6 +211,7 @@ export const useTamikaStore = defineStore('tamika', () => {
     user,
     selectedRole,
     selectedStore,
+    selectedProduct, // ✅ properly exported now
     cart,
     orders,
     users,
@@ -169,5 +235,6 @@ export const useTamikaStore = defineStore('tamika', () => {
     addToCart,
     removeFromCart,
     submitDelivery,
+    addOrder,
   }
 })

@@ -33,6 +33,7 @@
 
           <div class="text-right text-body-2 mt-1">
             Tamika service fee: Ksh 10
+            
           </div>
           <div class="text-right text-body-2 mt-1">
             Transport cost will be communicated on delivery
@@ -66,6 +67,7 @@
           <StoreComparisonCard
             :stores="store.storeTotals"
             :best-store="store.bestStore"
+            mode="cart"
           />
         </div>
       </v-col>
@@ -84,6 +86,11 @@ const router = useRouter()
 function goToDelivery() {
 
   router.push('/delivery')
+  
+}
+function goToCart() {
+  store.selectedProduct = null   // clear product selection
+  router.push('/cart')           // navigate to cart page
 }
 </script>
 

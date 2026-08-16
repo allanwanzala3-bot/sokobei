@@ -15,6 +15,7 @@ const router = createRouter({
     { path: '/compare', name: 'compare', component: () => import('../components/StoreComparison.vue') },
     { path: '/users', name: 'users', component: () => import('../components/Users.vue') },
     { path: '/my-orders', name: 'my-orders', component: () => import('../components/MyOrders.vue') },
+   
     { path: '/manager', name: 'manager', component: () => import('../components/ManagerDashboard.vue') },
     { path: '/manager/add-product', name: 'add-product', component: () => import('../components/ManagerAddProduct.vue') }
 
